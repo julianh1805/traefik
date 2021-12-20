@@ -1,24 +1,60 @@
 version: '3.9'
+secrets:
+  ovh_endpoint:
+    file: "./secrets/ovh_endpoint.txt"
+  ovh_application_key:
+    file: "secrets/ovh_application_key.txt"
+  ovh_application_secret:
+    file: "./secrets/ovh_application_secret.txt"
+  ovh_consumer_key:
+    file: "./secrets/ovh_consumer_key.txt"
 services:
-  website-traefik:
+  traefik:
     container_name: traefik
     image: traefik:v2.5.4
+    secrets:
+      - ovh_endpoint
+      - ovh_application_key
+      - ovh_application_secret
+      - ovh_consumer_key
     environment:
       - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
       - TRAEFIK_API=true
       - TRAEFIK_PROVIDERS_DOCKER=true
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+      - TRAEFIK_CERTIFICATESRESOLVERS_RESOLVER=true
+      - TRAEFIK_CERTIFICATESRESOLVERS_RESOLVER_ACME_EMAIL=husson.j@yahoo.com
+      - TRAEFIK_CERTIFICATESRESOLVERS_RESOLVER_ACME_STORAGE=/letsencrypt/acme.json
+      - TRAEFIK_CERTIFICATESRESOLVERS_RESOLVER_ACME_DNSCHALLENGE_PROVIDER=ovh
+      - TRAEFIK_CERTIFICATESRESOLVERS_RESOLVER_ACME_DNSCHALLENGE_DELAYBEFORECHECK=0
+      - TZ=Europe/Paris
+      - OVH_ENDPOINT_FILE=/run/secrets/ovh_endpoint
+      - OVH_APPLICATION_KEY_FILE=/run/secrets/ovh_application_key
+      - OVH_APPLICATION_SECRET_FILE=/run/secrets/ovh_application_secret
+      - OVH_CONSUMER_KEY_FILE=/run/secrets/ovh_consumer_key
     ports:
       - '80:80'
+      - '443:443'
     labels:
       - "traefik.enable=true"
+      #Redirect
+      - 'traefik.http.routers.websecure-redirection.rule=PathPrefix(`/`)'
+      - 'traefik.http.routers.websecure-redirection.entrypoints=web'
+      - 'traefik.http.routers.websecure-redirection.middlewares=redirect'
+      - 'traefik.http.middlewares.redirect.redirectscheme.scheme=https'
+      - 'traefik.http.middlewares.redirect.redirectscheme.permanent=true'
+      #Dashboard
+      - 'traefik.http.routers.dashboard.service=api@internal'
       - "traefik.http.routers.dashboard.rule=Host(`monitoring.julian-husson.com`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.services.website-traefik.loadbalancer.server.port=8080"
+      - 'traefik.http.routers.dashboard.entrypoints=websecure'
+      - 'traefik.http.routers.dashboard.tls.certresolver=letsencryptresolver'
+      - 'traefik.http.services.api@internal.loadbalancer.server.port=8080'
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=admin:$$1$$zkej2KMN$$7CqPaKy9F.XjLvdI6GP2y0"
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - './letsencrypt:/letsencrypt'
     networks:
       - web
 networks:
