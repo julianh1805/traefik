@@ -38,19 +38,22 @@ services:
       - '443:443'
     labels:
       - "traefik.enable=true"
-      #Redirect
+      #Redirect routers
       - 'traefik.http.routers.websecure-redirection.rule=PathPrefix(`/`)'
       - 'traefik.http.routers.websecure-redirection.entrypoints=web'
       - 'traefik.http.routers.websecure-redirection.middlewares=redirect'
+      #Redirect middlewares
       - 'traefik.http.middlewares.redirect.redirectscheme.scheme=https'
       - 'traefik.http.middlewares.redirect.redirectscheme.permanent=true'
-      #Dashboard
+      #Dashboard routers
       - 'traefik.http.routers.dashboard.service=api@internal'
       - "traefik.http.routers.dashboard.rule=Host(`monitoring.julian-husson.com`)"
       - 'traefik.http.routers.dashboard.entrypoints=websecure'
       - 'traefik.http.routers.dashboard.tls.certresolver=letsencryptresolver'
-      - 'traefik.http.services.api@internal.loadbalancer.server.port=8080'
       - "traefik.http.routers.dashboard.middlewares=auth"
+      #Dashboard services
+      - 'traefik.http.services.api@internal.loadbalancer.server.port=8080'
+      #Dashboard middlewares
       - "traefik.http.middlewares.auth.basicauth.users=admin:$$1$$zkej2KMN$$7CqPaKy9F.XjLvdI6GP2y0"
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
