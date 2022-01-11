@@ -1,13 +1,4 @@
 version: '3.9'
-secrets:
-  ovh_endpoint:
-    file: "./secrets/ovh_endpoint.txt"
-  ovh_application_key:
-    file: "secrets/ovh_application_key.txt"
-  ovh_application_secret:
-    file: "./secrets/ovh_application_secret.txt"
-  ovh_consumer_key:
-    file: "./secrets/ovh_consumer_key.txt"
 services:
   traefik:
     container_name: traefik
@@ -49,7 +40,7 @@ services:
       - 'traefik.http.routers.dashboard.service=api@internal'
       - "traefik.http.routers.dashboard.rule=Host(`monitoring.julian-husson.com`)"
       - 'traefik.http.routers.dashboard.entrypoints=websecure'
-      - 'traefik.http.routers.dashboard.tls.certresolver=letsencryptresolver'
+      - 'traefik.http.routers.dashboard.tls.certresolver=resolver'
       - "traefik.http.routers.dashboard.middlewares=auth"
       #Dashboard services
       - 'traefik.http.services.api@internal.loadbalancer.server.port=8080'
@@ -60,6 +51,15 @@ services:
       - './letsencrypt:/letsencrypt'
     networks:
       - web
+secrets:
+  ovh_endpoint:
+    file: "./secrets/ovh_endpoint.txt"
+  ovh_application_key:
+    file: "secrets/ovh_application_key.txt"
+  ovh_application_secret:
+    file: "./secrets/ovh_application_secret.txt"
+  ovh_consumer_key:
+    file: "./secrets/ovh_consumer_key.txt"
 networks:
   web:
     external: true
