@@ -12,6 +12,7 @@ services:
       - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
       - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
       - TRAEFIK_API=true
+      - TRAEFIK_PING=true
       - TRAEFIK_PROVIDERS_DOCKER=true
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
       - TRAEFIK_CERTIFICATESRESOLVERS_RESOLVER=true
@@ -46,6 +47,12 @@ services:
       - 'traefik.http.services.api@internal.loadbalancer.server.port=8080'
       #Dashboard middlewares
       - "traefik.http.middlewares.auth.basicauth.users=admin:$$1$$zkej2KMN$$7CqPaKy9F.XjLvdI6GP2y0"
+    healthcheck:
+      test: [ "CMD", "traefik", "healthcheck" ]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
       - './letsencrypt:/letsencrypt'
