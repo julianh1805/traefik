@@ -39,7 +39,7 @@ services:
       - 'traefik.http.middlewares.redirect.redirectscheme.permanent=true'
       #Dashboard routers
       - 'traefik.http.routers.dashboard.service=api@internal'
-      - "traefik.http.routers.dashboard.rule=Host(`monitoring.julian-husson.com`)"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.julian-husson.com`)"
       - 'traefik.http.routers.dashboard.entrypoints=websecure'
       - 'traefik.http.routers.dashboard.tls.certresolver=resolver'
       - "traefik.http.routers.dashboard.middlewares=auth"
