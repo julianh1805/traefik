@@ -45,7 +45,7 @@ services:
       #Dashboard services
       - 'traefik.http.services.api@internal.loadbalancer.server.port=8080'
       #Dashboard middlewares
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$05$$nHzdz0PwkISTLz3EARM/c.6g2Knqmp.RecHLm93zk2FchP.RO2S/u"
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$05$$swMUQmE1GFG6khNvcN4u.unOBKh0LQ7ujneVk4DhHmBoD7XChbL8C"
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
       - './letsencrypt:/letsencrypt'
